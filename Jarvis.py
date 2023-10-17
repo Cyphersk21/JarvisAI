@@ -62,7 +62,18 @@ def ai(prompt):
     except Exception as e:
         return say(f"Some Error Occurred. Sorry from Jarvis {e}")
 
+def get_weather(api_key, city):
+    base_url = f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric'
+    response = requests.get(base_url)
 
+    if response.status_code == 200:
+        data = response.json()
+        temperature = data['main']['temp']
+        description = data['weather'][0]['description']
+        return f'The weather in {city} is {description} with a temperature of {temperature}°C.'
+    else:
+        return 'Sorry, I couldn\'t fetch the weather data at the moment.'
+        
 def say(text):
     speaker.Speak(text)
 
@@ -108,6 +119,13 @@ if __name__ == '__main__':
 
         elif "Using chatGPT".lower() in query.lower():
             ai(prompt=query)
+
+        elif "weather".lower() in query.lower():
+            api_key = WeatherAPI
+            city = query.split("in ")[-1]  # You can get the city from user input or other sources
+            response = get_weather(api_key, city)
+            print(f"Weather data {response}")
+            say(response)
 
         elif "go offline".lower() in query.lower():
             say("Going offline sir....")
